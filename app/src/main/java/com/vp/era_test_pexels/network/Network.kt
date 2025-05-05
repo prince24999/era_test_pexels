@@ -6,17 +6,15 @@ import com.vp.era_test_pexels.model.ApiResponse
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
+
 
 class Network {
 
 
-        fun fetchPexelsPhotos(
+        fun fetchPhotos(
             apiKey: String,
             query: String,
             orientation: String,
@@ -28,20 +26,24 @@ class Network {
         ): String {
             val client = OkHttpClient()
 
-            val json = """{"key": "value"}"""
-            val mediaType = "application/json".toMediaType()
-            val body = json.toRequestBody(mediaType)
-
+            //val json = """{"key": "value"}"""
+            //val mediaType = "application/json".toMediaType()
+            //val body = json.toRequestBody(mediaType)
+            val requestUrl: String = "https://api.pexels.com/v1/search?query=$query&orientation=$orientation&size=$size&color=$color&locale=$locale&page=$pageNumber&per_page=$perPage"
             val request = Request.Builder()
-                .url("https://api.pexels.com/v1/search?query=$query&orientation=landscape&size=&color=&locale=&page=1&per_page=2")
+                .url(requestUrl)
                 .addHeader("Authorization", apiKey)
                 .get()
                 .build()
 
             try {
+                Log.d("Network", "URL : $requestUrl")
+                Log.d("Network", "Fetching data...")
                 val response: Response = client.newCall(request).execute()
-                Log.d("Network", "Response Code: ${response.code}")
-                return response.body
+                val responseBody = response.body?.string()
+                //Log.d("Network", responseBody ?: "Response body is null")
+                //Log.d("Network", "Response Code: ${response.code}")
+                return responseBody.toString()
             } catch (e: IOException) {
                 Log.e("Network", "Error fetching data: ${e.message}")
                 return "e"
@@ -49,6 +51,17 @@ class Network {
 
         }
 
+
+
+    fun parseApiResponse(jsonString: String): ApiResponse? {
+        return try {
+            Log.d("Network", "JSON String: $jsonString")
+            Gson().fromJson(jsonString, ApiResponse::class.java)
+        } catch (e: Exception) {
+            println("Lỗi khi parse JSON: ${e.message}")
+            null
+        }
+    }
 
 
 }

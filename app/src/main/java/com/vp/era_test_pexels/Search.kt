@@ -65,7 +65,7 @@ class Search : ComponentActivity() {
                 containerColor = Color.White,
 
                 topBar = {
-                    SharedTopBar("Era Photo Search")
+                    SharedTopBar("Photo Search")
 
                 }
             ) { innerPadding ->
@@ -105,7 +105,7 @@ fun SearchForm() {
         var expandedOrientation by remember { mutableStateOf(false) }
         var expandedSize by remember { mutableStateOf(false) }
         var expandedColor by remember { mutableStateOf(false) }
-        var searchText by remember { mutableStateOf("") }
+        var searchText by remember { mutableStateOf("nature") }
         var localeText by remember { mutableStateOf("") }
         var pageNumberText by remember { mutableStateOf("1") }
         var perPageText by remember { mutableStateOf(15f) }

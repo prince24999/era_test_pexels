@@ -42,6 +42,13 @@ android {
 
 dependencies {
 
+
+    implementation ("androidx.compose.ui:ui:1.5.0")
+    implementation ("androidx.compose.foundation:foundation:1.5.0")
+    implementation ("androidx.compose.material:material:1.5.0")
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
+    implementation ("androidx.activity:activity-compose:1.7.0")
+    implementation ("com.squareup.picasso:picasso:2.8")
     implementation ("com.android.volley:volley:1.2.1")
 
     implementation ("com.google.code.gson:gson:2.8.9")

@@ -1,11 +1,13 @@
 package com.vp.era_test_pexels.model
 
+import com.google.gson.annotations.SerializedName
+
 data class ApiResponse(
-    val total_results: Int,
     val page: Int,
-    val per_page: Int,
+    @SerializedName("per_page") val perPage: Int,
     val photos: List<Photo>,
-    val next_page: String
+    @SerializedName("total_results") val totalResults: Int,
+    @SerializedName("next_page") val nextPage: String?
 )
 
 data class Photo(
@@ -14,15 +16,15 @@ data class Photo(
     val height: Int,
     val url: String,
     val photographer: String,
-    val photographer_url: String,
-    val photographer_id: Int,
-    val avg_color: String,
-    val src: Src,
+    @SerializedName("photographer_url") val photographerUrl: String,
+    @SerializedName("photographer_id") val photographerId: Int,
+    @SerializedName("avg_color") val avgColor: String,
+    val src: PhotoSource,
     val liked: Boolean,
     val alt: String
 )
 
-data class Src(
+data class PhotoSource(
     val original: String,
     val large2x: String,
     val large: String,
