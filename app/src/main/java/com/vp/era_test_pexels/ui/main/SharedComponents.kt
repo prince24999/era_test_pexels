@@ -1,15 +1,24 @@
 package com.vp.era_test_pexels.ui.main
 
+
+import android.app.Activity
+import android.os.Build
+import android.view.WindowInsetsController
+import androidx.activity.compose.LocalActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
+
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -17,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 fun SharedTopBar(title: String) {
     TopAppBar(
         title = { Text(title) },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color.Black),
+        colors = TopAppBarDefaults.topAppBarColors(titleContentColor = Color.Black),
         modifier = Modifier
     )
 }
@@ -67,5 +76,18 @@ fun SharedNavigationBar(
                 unselectedTextColor = Color.Gray
             )
         )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+@Composable
+fun FullScreenEffect() {
+    val window = (LocalActivity.current as Activity).window
+    SideEffect {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.insetsController?.apply {
+            //hide(WindowInsets.Type.statusBars())
+            systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 }

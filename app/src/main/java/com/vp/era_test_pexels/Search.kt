@@ -2,13 +2,19 @@ package com.vp.era_test_pexels
 
 import android.R.attr.enabled
 import android.R.attr.type
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +45,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -55,6 +62,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.vp.era_test_pexels.control.SearchHistoryManager
 import com.vp.era_test_pexels.control.encodeUrl
 import com.vp.era_test_pexels.control.getColor
@@ -64,16 +73,18 @@ import com.vp.era_test_pexels.control.getPhotosPerPage
 import com.vp.era_test_pexels.control.getSize
 import com.vp.era_test_pexels.control.isInternetAvailable
 import com.vp.era_test_pexels.ui.PhotoList
+import com.vp.era_test_pexels.ui.main.FullScreenEffect
 import com.vp.era_test_pexels.ui.main.SharedTopBar
 
 class Search : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             var selectedIndex by remember { mutableIntStateOf(0) }
-
-            Scaffold(modifier = Modifier.fillMaxWidth(),
-                containerColor = Color.White,
+            //FullScreenEffect() // overlap statusbar
+            Scaffold(modifier = Modifier.fillMaxSize(),
+                //containerColor = Color.White,
 
                 topBar = {
                     SharedTopBar("Photo Search")
@@ -84,7 +95,7 @@ class Search : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.TopCenter
                 ) {
                     SearchForm()
 
@@ -93,6 +104,8 @@ class Search : ComponentActivity() {
         }
     }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,6 +122,7 @@ fun AutoCompleteTextField(
     ) {
         TextField(
             value = text,
+            singleLine = true,
             onValueChange = { newText ->
                 text = newText // update when type
                 expanded = suggestions.any { item -> item.contains(newText, ignoreCase = true) }
@@ -117,7 +131,7 @@ fun AutoCompleteTextField(
             label = { Text("Type something here to search...") }
         )
 
-        ExposedDropdownMenu(
+        ExposedDropdownMenu(modifier = Modifier.background(Color.White).padding(0.dp),
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
@@ -155,7 +169,7 @@ fun SearchForm() {
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {

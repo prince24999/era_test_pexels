@@ -1,12 +1,14 @@
 package com.vp.era_test_pexels.ui
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +59,7 @@ import com.vp.era_test_pexels.control.calculateOrientationAndSizeOfPhoto
 import com.vp.era_test_pexels.model.Photo
 
 import com.vp.era_test_pexels.network.Network
+import com.vp.era_test_pexels.ui.main.FullScreenEffect
 
 
 import com.vp.era_test_pexels.ui.main.SharedTopBar
@@ -67,7 +70,7 @@ import kotlinx.coroutines.flow.map
 
 class PhotoList : ComponentActivity()
 {
-
+    //@RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?)
     {
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitAll().build())
@@ -89,8 +92,9 @@ class PhotoList : ComponentActivity()
 
             var selectedIndex by remember { mutableIntStateOf(0) }
 
+            //FullScreenEffect() // overlap statusbar
             Scaffold(modifier = Modifier.fillMaxWidth(),
-                containerColor = Color.White,
+                //containerColor = Color.White,
 
                 topBar = {
                     SharedTopBar("Photo List")
@@ -100,7 +104,8 @@ class PhotoList : ComponentActivity()
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding),
+                        .padding(innerPadding).background(Color.White),
+
                     contentAlignment = Alignment.TopCenter
                 ) {
                     GalleryGrid(
@@ -270,7 +275,7 @@ fun GalleryGrid(
                     val totalItems = photos.size
 
                     (lastVisibleItem > totalItems - 2)
-                            || (lastVisibleItem == totalItems)
+
 
                 // Check if reach end of List - 2 items
                 }
@@ -292,6 +297,8 @@ fun GalleryGrid(
                 }
         }
     }
+
+    // Refresh Button
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -320,6 +327,7 @@ fun GalleryGrid(
         Box(modifier = Modifier.padding(paddingValues)) {
             if(photos.isNotEmpty())
             {
+                // Grid of photos
                 LazyVerticalGrid(
                     state = listState,
                     columns = GridCells.Adaptive(minSize = 300.dp),

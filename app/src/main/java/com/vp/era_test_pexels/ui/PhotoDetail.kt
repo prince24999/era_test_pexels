@@ -1,9 +1,15 @@
 package com.vp.era_test_pexels.ui
 
+import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -16,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,11 +39,13 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import coil.compose.rememberAsyncImagePainter
 import com.vp.era_test_pexels.ui.main.SharedTopBar
 
 class PhotoDetail : ComponentActivity() {
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val imageUrl = intent.getStringExtra("originalUrl")
@@ -46,7 +55,7 @@ class PhotoDetail : ComponentActivity() {
         Log.d("PhotoDetail", "PhotoDetailUrl: $imageUrl")
         setContent {
             var selectedIndex by remember { mutableIntStateOf(0) }
-
+            FullScreenEffect() // overlap statusbar
             Scaffold(modifier = Modifier.fillMaxSize(),
 //                containerColor = Color.White,
 //
@@ -151,7 +160,18 @@ fun ZoomableImageScreen(imageUrl: String) {
     }
 }
 
-
+@RequiresApi(Build.VERSION_CODES.R)
+@Composable
+fun FullScreenEffect() {
+    val window = (LocalActivity.current as Activity).window
+    SideEffect {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.insetsController?.apply {
+            hide(WindowInsets.Type.statusBars())
+            systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+}
 
 
 
