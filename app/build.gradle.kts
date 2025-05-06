@@ -44,8 +44,6 @@ dependencies {
 
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.31.1-alpha")
-
-
     implementation ("androidx.compose.ui:ui:1.5.0")
     implementation ("androidx.compose.foundation:foundation:1.5.0")
     implementation ("androidx.compose.material:material:1.5.0")
@@ -53,7 +51,6 @@ dependencies {
     implementation ("androidx.activity:activity-compose:1.7.0")
     implementation ("com.squareup.picasso:picasso:2.8")
     implementation ("com.android.volley:volley:1.2.1")
-
     implementation ("com.google.code.gson:gson:2.8.9")
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation(libs.androidx.core.ktx)
