@@ -47,10 +47,10 @@ Core Functionality
 ● Support for search history or recent searches
 
 
-![Search Form](https://photos.google.com/share/AF1QipM5mCLteF6DZAqXuow0R_NzdsZJ6RXeqQ1OaCw1uazHyCRZJuMTXvAa3Z7nOnPzWQ/photo/AF1QipP1ufy-kqXh-TDkSUgnQW1NELH3G-hLxLknRZrp?key=cmplTXBlSlVlSE9zLXVXRzRpQkZJNjhSWHBBNm9n)
-![Photo List](https://photos.google.com/share/AF1QipMDd_gl0F_ZK4uDnOqbOaHfGdyyRY4Ye6jNW6JLG41Bctd9pdRduG1EXlpur8NoYg/photo/AF1QipNYl8venDNPU_gawH858EVOOoG2JzPMejg0UXhm?key=YTlqZDNoVmltYmN6MVhKTW9fN1FXbENqdl8tX01n)
-![Photo Detail View](https://photos.google.com/share/AF1QipMD7yQcSB4a_jhQZfuuRTyR6zEWhp1Ah2rfu_pBhvZDy7IyQf4GuFaFBYY8lwCAOg/photo/AF1QipP_EuYagCeCvXtL4kHjbb0ykaGtxxb_Lx83AsCk?key=WFptV3YxeU5VSVV2TFVMQzVHY1Vjdk0xQnl5OF9R)
-![Pinch to zoom view](https://photos.google.com/share/AF1QipM6EekVFORqjDOyH3Qws5BD0n5v--u-y581Y_8t4AO4dBTkPKNi93Plft3wLdwZ9A/photo/AF1QipOCJ6vNCGhpe7qLaKNEyB2CopsfIysJ4eM51Vm2?key=eENKRVFYT3ZzZi03OE1mRWVWVUlwNl81dHlLWWJn)
+![Search Form](images/1.jpg)
+![Photo List](images/2.jpg)
+![Photo Detail View](images/3.jpg)
+![Pinch to zoom view](images/4.jpg)
 
 📄 License
 MIT License.
