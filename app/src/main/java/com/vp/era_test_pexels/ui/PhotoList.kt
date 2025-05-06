@@ -99,7 +99,7 @@ class PhotoList : ComponentActivity()
 }
 
 @Composable
-fun PhotoItem(photographer: String, alt: String,imageUrl: String, modifier: Modifier = Modifier) {
+fun PhotoItem(photographer: String, alt: String,imageUrl: String, originalUrl: String, modifier: Modifier = Modifier) {
     Log.d("PhotoList", "PhotoItemUrl: $imageUrl")
     val context = LocalContext.current
     Card(
@@ -111,6 +111,9 @@ fun PhotoItem(photographer: String, alt: String,imageUrl: String, modifier: Modi
                 val intent = Intent(context, PhotoDetail::class.java).apply()
                 {
                     putExtra("src", imageUrl)
+                    putExtra("originalUrl", originalUrl)
+                    putExtra("photographer", photographer)
+                    putExtra("alt", alt)
                 }
                 context.startActivity(intent)
             }
@@ -140,7 +143,7 @@ fun PhotoItem(photographer: String, alt: String,imageUrl: String, modifier: Modi
                         fontStyle = FontStyle.Italic
                     )
 
-                    Text(modifier = Modifier.padding(top = 3.dp),
+                    Text(modifier = Modifier.padding(top = 4.dp),
                         text = photographer,
                         color = Color.White,
                         fontSize = 12.sp,
@@ -172,7 +175,7 @@ fun GalleryGrid(query: String, orientation: String, size: String, color: String,
                 modifier = Modifier.padding(8.dp)
             ) {
                 items(photos.count()) { index ->
-                    PhotoItem(photos[index].photographer,photos[index].alt,calculateOrientationAndSizeOfPhoto(photos[index], orientation, size))
+                    PhotoItem(photos[index].photographer,photos[index].alt,calculateOrientationAndSizeOfPhoto(photos[index],orientation, size), photos[index].src.original)
                 }
             }
         }

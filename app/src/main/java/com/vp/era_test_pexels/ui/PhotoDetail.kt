@@ -9,10 +9,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -26,7 +28,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.vp.era_test_pexels.ui.main.SharedTopBar
 
@@ -34,7 +39,10 @@ class PhotoDetail : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val imageUrl = intent.getStringExtra("src")
+        val imageUrl = intent.getStringExtra("originalUrl")
+        val photographer = intent.getStringExtra("photographer")
+        val alt = intent.getStringExtra("alt")
+
         Log.d("PhotoDetail", "PhotoDetailUrl: $imageUrl")
         setContent {
             var selectedIndex by remember { mutableIntStateOf(0) }
@@ -53,8 +61,32 @@ class PhotoDetail : ComponentActivity() {
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center
                 ) {
+
                     ZoomableImageScreen(imageUrl.toString())
 
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter) // Căn footer xuống đáy
+                            .background(Color.Black.copy(alpha = 0.5f)) // Màu nền mờ
+                            .padding(8.dp)
+                    ) {
+                        Column(modifier = Modifier.align(Alignment.CenterStart)) {
+                            Text(
+                                text = alt.toString(),
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                fontStyle = FontStyle.Italic
+                            )
+
+                            Text(modifier = Modifier.padding(top = 4.dp),
+                                text = photographer.toString(),
+                                color = Color.White,
+                                fontSize = 12.sp,
+
+                                )
+                        }
+                    }
                 }
             }
         }
