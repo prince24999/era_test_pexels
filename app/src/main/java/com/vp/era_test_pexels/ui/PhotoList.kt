@@ -7,8 +7,10 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,7 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.vp.era_test_pexels.control.apiKey
 import com.vp.era_test_pexels.control.calculateOrientationAndSizeOfPhoto
@@ -94,11 +99,11 @@ class PhotoList : ComponentActivity()
 }
 
 @Composable
-fun PhotoItem(imageUrl: String, modifier: Modifier = Modifier) {
+fun PhotoItem(photographer: String, alt: String,imageUrl: String, modifier: Modifier = Modifier) {
     Log.d("PhotoList", "PhotoItemUrl: $imageUrl")
     val context = LocalContext.current
     Card(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(10.dp),
         modifier = modifier.padding(8.dp)
             .clickable {
                 Log.d("PhotoList", "PhotoItemClicked: $imageUrl")
@@ -110,14 +115,41 @@ fun PhotoItem(imageUrl: String, modifier: Modifier = Modifier) {
                 context.startActivity(intent)
             }
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(imageUrl),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-        )
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Image(
+                painter = rememberAsyncImagePainter(imageUrl),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
+            // Footer chồng lên phía dưới ảnh
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter) // Căn footer xuống đáy
+                    .background(Color.Black.copy(alpha = 0.6f)) // Màu nền mờ
+                    .padding(8.dp)
+            ) {
+                Column(modifier = Modifier.align(Alignment.CenterStart)) {
+                    Text(
+                        text = alt,
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontStyle = FontStyle.Italic
+                    )
+
+                    Text(modifier = Modifier.padding(top = 3.dp),
+                        text = photographer,
+                        color = Color.White,
+                        fontSize = 12.sp,
+
+                    )
+                }
+
+            }
+        }
     }
 }
 
@@ -140,7 +172,7 @@ fun GalleryGrid(query: String, orientation: String, size: String, color: String,
                 modifier = Modifier.padding(8.dp)
             ) {
                 items(photos.count()) { index ->
-                    PhotoItem(calculateOrientationAndSizeOfPhoto(photos[index], orientation, size))
+                    PhotoItem(photos[index].photographer,photos[index].alt,calculateOrientationAndSizeOfPhoto(photos[index], orientation, size))
                 }
             }
         }
