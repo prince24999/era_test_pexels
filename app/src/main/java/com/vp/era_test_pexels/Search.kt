@@ -243,7 +243,7 @@ fun SearchForm() {
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth()
-                        //.clip(RoundedCornerShape(16.dp)),
+                        //.clip(RoundedCornerShape(3.dp)),
 //                    colors = TextFieldDefaults.colors(
 //                        focusedContainerColor = Color.White,
 //                        focusedIndicatorColor = Color.Transparent,
@@ -277,7 +277,7 @@ fun SearchForm() {
                 modifier = Modifier
                     .background(color = Color.Transparent)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)),
+                    .clip(RoundedCornerShape(5.dp)),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
                     focusedIndicatorColor = Color.Transparent,
@@ -295,7 +295,7 @@ fun SearchForm() {
                 modifier = Modifier
                     .background(color = Color.Transparent)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)), 
+                    .clip(RoundedCornerShape(5.dp)),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White, 
                     focusedIndicatorColor = Color.Transparent, 

@@ -2,6 +2,7 @@ package com.vp.era_test_pexels.network
 
 import android.util.Log
 import com.google.gson.Gson
+import com.vp.era_test_pexels.control.apiKey
 import com.vp.era_test_pexels.control.photoSearchBaseUrl
 import com.vp.era_test_pexels.model.ApiResponse
 import okhttp3.MediaType.Companion.toMediaType
@@ -52,6 +53,30 @@ class Network {
 
         }
 
+    fun fetchPhotosNextPage(url: String): String {
+        val client = OkHttpClient()
+
+        val requestUrl: String = url
+        val request = Request.Builder()
+            .url(requestUrl)
+            .addHeader("Authorization",  apiKey)
+            .get()
+            .build()
+
+        try {
+            Log.d("Network", "URL : $requestUrl")
+            Log.d("Network", "Fetching data...")
+            val response: Response = client.newCall(request).execute()
+            val responseBody = response.body?.string()
+            //Log.d("Network", responseBody ?: "Response body is null")
+            //Log.d("Network", "Response Code: ${response.code}")
+            return responseBody.toString()
+        } catch (e: IOException) {
+            Log.e("Network", "Error fetching data: ${e.message}")
+            return "e"
+        }
+
+    }
 
 
     fun parseApiResponse(jsonString: String): ApiResponse? {

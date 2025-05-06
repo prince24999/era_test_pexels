@@ -11,21 +11,35 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,13 +49,19 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.vp.era_test_pexels.control.apiKey
 import com.vp.era_test_pexels.control.calculateOrientationAndSizeOfPhoto
+import com.vp.era_test_pexels.model.Photo
 
 import com.vp.era_test_pexels.network.Network
 
 
 import com.vp.era_test_pexels.ui.main.SharedTopBar
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 
 class PhotoList : ComponentActivity()
@@ -102,6 +122,8 @@ class PhotoList : ComponentActivity()
 fun PhotoItem(photographer: String, alt: String,imageUrl: String, originalUrl: String, modifier: Modifier = Modifier) {
     Log.d("PhotoList", "PhotoItemUrl: $imageUrl")
     val context = LocalContext.current
+    var isImageLoading by remember { mutableStateOf(true) }
+
     Card(
         shape = RoundedCornerShape(10.dp),
         modifier = modifier.padding(8.dp)
@@ -119,8 +141,18 @@ fun PhotoItem(photographer: String, alt: String,imageUrl: String, originalUrl: S
             }
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
+
+            if (isImageLoading) {
+                CircularProgressIndicator(color = Color.White)
+            }
+
             Image(
-                painter = rememberAsyncImagePainter(imageUrl),
+                painter = rememberAsyncImagePainter(
+                    model = imageUrl,
+                    onSuccess = { isImageLoading = false },
+                    onError = { isImageLoading = true },
+                    onLoading = { isImageLoading = false }
+                ),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -156,94 +188,152 @@ fun PhotoItem(photographer: String, alt: String,imageUrl: String, originalUrl: S
     }
 }
 
-@Composable
-fun GalleryGrid(query: String, orientation: String, size: String, color: String, locale: String, pageNumber: Int, perPage: Int)
-{
-    val net = Network()
-    val jsonResponse: String = net.fetchPhotos(apiKey, query, orientation, size, color, locale, pageNumber, perPage)
-    if (jsonResponse != "e")
-    {
-        Log.d("PhotoList", jsonResponse)
-        val apiResponse = net.parseApiResponse(jsonResponse)
-        if (apiResponse != null) {
-            Log.d("PhotoList", "${apiResponse.photos.size}")
+//@Composable
+//fun GalleryGrid(query: String, orientation: String, size: String, color: String, locale: String, pageNumber: Int, perPage: Int)
+//{
+//    var nextPageUrl by remember { mutableStateOf("") }
+//
+//    val net = Network()
+//    val jsonResponse: String = net.fetchPhotos(apiKey, query, orientation, size, color, locale, pageNumber, perPage)
+//    if (jsonResponse != "e")
+//    {
+//        Log.d("PhotoList", jsonResponse)
+//        val apiResponse = net.parseApiResponse(jsonResponse)
+//        if (apiResponse != null) {
+//            Log.d("PhotoList", "${apiResponse.photos.size}")
+//
+//            val photos = apiResponse.photos
+//            nextPageUrl = apiResponse.nextPage.toString()
+//
+//            LazyVerticalGrid(
+//                columns = GridCells.Adaptive(minSize = 300.dp),
+//                modifier = Modifier.padding(8.dp)
+//            ) {
+//                items(photos.count()) { index ->
+//                    PhotoItem(photos[index].photographer,photos[index].alt,calculateOrientationAndSizeOfPhoto(photos[index],orientation, size), photos[index].src.original)
+//                }
+//            }
+//        }
+//        else
+//        {
+//            Log.d("PhotoList", "Error Parsing data")
+//        }
+//    }
+//
+//}
 
-            val photos = apiResponse.photos
+@Composable
+fun GalleryGrid(
+    query: String,
+    orientation: String,
+    size: String,
+    color: String,
+    locale: String,
+    pageNumber: Int,
+    perPage: Int
+) {
+    var nextPageUrl by remember { mutableStateOf("") }
+    var photos by remember { mutableStateOf<List<Photo>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+
+    val listState = rememberLazyGridState()
+    val net = Network()
+
+    LaunchedEffect(isLoading) {
+        val jsonResponse = net.fetchPhotos(apiKey, query, orientation, size, color, locale, pageNumber, perPage)
+        if (jsonResponse != "e") {
+            val apiResponse = net.parseApiResponse(jsonResponse)
+            if (apiResponse != null) {
+                photos = apiResponse.photos
+                Log.d("PhotoList", "New photos size: ${photos.size}")
+                nextPageUrl = apiResponse.nextPage.toString()
+            }
+        }
+    }
+
+    // watching scroll state to automatically load more data
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+            .map { visibleItems ->
+                val lastVisibleItem = visibleItems.lastOrNull()?.index ?: 0
+                val totalItems = photos.size
+                lastVisibleItem >= totalItems - 2 // Check if reach end of List - 2 items
+            }
+            .distinctUntilChanged()
+            .collect { shouldLoadMore ->
+                if (shouldLoadMore && nextPageUrl.isNotEmpty() && !isLoading) {
+                    isLoading = true
+                    val jsonResponse = net.fetchPhotosNextPage(nextPageUrl)
+                    if (jsonResponse != "e") {
+                        val apiResponse = net.parseApiResponse(jsonResponse)
+                        if (apiResponse != null) {
+                            photos = photos + apiResponse.photos
+                            Log.d("PhotoList", "New photos size: ${photos.size}")
+                            nextPageUrl = apiResponse.nextPage.toString()
+                        }
+                    }
+                    isLoading = false
+                }
+            }
+    }
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                containerColor = Color.DarkGray,
+                contentColor = Color.White,
+                onClick = {
+                    isLoading = true
+                    photos = emptyList()
+                    val jsonResponse = net.fetchPhotos(apiKey, query, orientation, size, color, locale, pageNumber, perPage)
+                    if (jsonResponse != "e") {
+                        val apiResponse = net.parseApiResponse(jsonResponse)
+                        if (apiResponse != null) {
+                            photos = apiResponse.photos
+                            Log.d("PhotoList", "New photos size: ${photos.size}")
+                            nextPageUrl = apiResponse.nextPage.toString()
+                        }
+                    }
+                    isLoading = false
+                }
+
+            ) {
+                Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
+            }
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
 
             LazyVerticalGrid(
+                state = listState,
                 columns = GridCells.Adaptive(minSize = 300.dp),
                 modifier = Modifier.padding(8.dp)
             ) {
                 items(photos.count()) { index ->
-                    PhotoItem(photos[index].photographer,photos[index].alt,calculateOrientationAndSizeOfPhoto(photos[index],orientation, size), photos[index].src.original)
+
+                    PhotoItem(
+                        photos[index].photographer,
+                        photos[index].alt,
+                        calculateOrientationAndSizeOfPhoto(photos[index], orientation, size),
+                        photos[index].src.original
+                    )
+                }
+
+            }
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f)), // Hiệu ứng mờ nền
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color.White)
                 }
             }
         }
-        else
-        {
-            Log.d("PhotoList", "Error Parsing data")
-        }
     }
-
 }
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun PhotoGridScreen() {
-//    val context = LocalContext.current
-//    val photoList = remember { mutableStateListOf<String>() } // Danh sách ảnh
-//    var nextPageUrl by remember { mutableStateOf<String?>(null) } // URL trang tiếp theo
-//    var isLoading by remember { mutableStateOf(false) } // Trạng thái tải thêm dữ liệu
-//    var isRefreshing by remember { mutableStateOf(false) } // Trạng thái pull-down refresh
-//
-//    // 🌟 Gọi API trang đầu tiên khi mở form hoặc khi refresh
-//    fun refreshPhotos() {
-//        isRefreshing = true
-//        photoList.clear() // Xóa danh sách cũ
-//        loadPhotos("https://api.pexels.com/v1/search?query=nature&page=1&per_page=10", photoList) {
-//            nextPageUrl = it
-//            isRefreshing = false
-//        }
-//    }
-//
-//    LaunchedEffect(Unit) { refreshPhotos() }
-//
-//    SwipeRefresh(
-//        state = rememberSwipeRefreshState(isRefreshing),
-//        onRefresh = { refreshPhotos() } // Gọi API khi kéo xuống
-//    ) {
-//        LazyVerticalGrid(
-//            columns = GridCells.Adaptive(120.dp),
-//            modifier = Modifier.fillMaxSize(),
-//            contentPadding = PaddingValues(8.dp)
-//        ) {
-//            items(photoList) { imageUrl ->
-//                Card(modifier = Modifier.padding(4.dp)) {
-//                    Image(
-//                        painter = rememberAsyncImagePainter(imageUrl),
-//                        contentDescription = null,
-//                        contentScale = ContentScale.Crop,
-//                        modifier = Modifier.fillMaxWidth().height(150.dp)
-//                    )
-//                }
-//            }
-//
-//            // 🔄 Hiển thị loading khi scroll xuống để tải `next_page`
-//            if (isLoading) {
-//                item {
-//                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-//                }
-//            }
-//        }
-//    }
-//
-//    // 🌟 Khi cuộn đến cuối, tự động tải trang kế tiếp
-//    LaunchedEffect(photoList.size) {
-//        nextPageUrl?.let { url ->
-//            isLoading = true
-//            loadPhotos(url, photoList) {
-//                nextPageUrl = it
-//            }
-//            isLoading = false
-//        }
-//    }
-//}
+
+
+
+
+
