@@ -101,7 +101,7 @@ class PhotoList : ComponentActivity()
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.TopCenter
                 ) {
                     GalleryGrid(
                         query = query.toString(),

@@ -1,5 +1,8 @@
 package com.vp.era_test_pexels
 
+import android.R.attr.enabled
+import android.R.attr.type
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -25,8 +28,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MenuDefaults
+
+import androidx.compose.material3.MenuAnchorType
+
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -36,6 +40,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -89,12 +94,61 @@ class Search : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AutoCompleteTextField(
+    suggestions: List<String>,
+    onItemSelected: (String) -> Unit
+) {
+    var text by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
+    ) {
+        TextField(
+            value = text,
+            onValueChange = { newText ->
+                text = newText // update when type
+                expanded = suggestions.any { item -> item.contains(newText, ignoreCase = true) }
+            },
+            modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true).fillMaxWidth(),
+            label = { Text("Type something here to search...") }
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            suggestions.filter { it.contains(text, ignoreCase = true) }.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(item) },
+                    onClick = {
+                        text = item
+                        expanded = false
+                        onItemSelected(item) // do when selected
+                    }
+                )
+            }
+        }
+    }
+
+    // push value out
+    LaunchedEffect(text) {
+        onItemSelected(text) // update value when user input new string
+    }
+}
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchForm() {
     val context = LocalContext.current
-    val searchHistoryManager = remember { SearchHistoryManager(context) }
+    // Get search history
+    val searchHistoryManager = SearchHistoryManager(context)
+    val history = searchHistoryManager.getSearchHistory()
 
     Column(
         modifier = Modifier
@@ -116,7 +170,7 @@ fun SearchForm() {
         var expandedColor by remember { mutableStateOf(false) }
 
 
-        // query string , validate only allow char, number
+        // query string
         var searchText by remember { mutableStateOf("") }
         var errorMessage by remember { mutableStateOf<String?>(null) }
         //val validPattern = Regex("^[a-zA-Z0-9]+$")
@@ -127,32 +181,39 @@ fun SearchForm() {
 
         // Query String Input
          Box(modifier = Modifier.padding(5.dp)) {
-            TextField(
-                value = searchText,
-                onValueChange = {
-                    searchText = it
-                    errorMessage = when {
-                        searchText.isBlank() -> "Please enter a search query"
+//            TextField(
+//                value = searchText,
+//                onValueChange = {
+//                    searchText = it
+//                    errorMessage = when {
+//                        searchText.isBlank() -> "Please enter a search query"
+//
+//                        else -> null
+//                    }
+//                                },
+//                label = { Text("Type something here for Search") },
+//                isError = errorMessage != null,
+//                keyboardOptions = KeyboardOptions.Default.copy(
+//                    imeAction = ImeAction.Done
+//                ),
+//                modifier = Modifier
+//                    .background(color = Color.Transparent)
+//                    .fillMaxWidth()
+//                 //   .clip(RoundedCornerShape(16.dp)),
+////                colors = TextFieldDefaults.colors(
+////                    focusedContainerColor = Color.White,
+////                    focusedIndicatorColor = Color.Transparent,
+////                    unfocusedIndicatorColor = Color.Transparent
+////                )
+//            )
 
-                        else -> null
-                    }
-                                },
-                label = { Text("Type something here for Search") },
-                isError = errorMessage != null,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
-                ),
-                modifier = Modifier
-                    .background(color = Color.Transparent)
-                    .fillMaxWidth()
-                 //   .clip(RoundedCornerShape(16.dp)),
-//                colors = TextFieldDefaults.colors(
-//                    focusedContainerColor = Color.White,
-//                    focusedIndicatorColor = Color.Transparent,
-//                    unfocusedIndicatorColor = Color.Transparent
-//                )
-            )
-
+             AutoCompleteTextField(
+                 suggestions = history,
+                 onItemSelected = { selectedText ->
+                     Log.d("History","Selected: $selectedText")
+                     searchText = selectedText
+                 }
+             )
 
 
         }
@@ -285,71 +346,12 @@ fun SearchForm() {
             )
         }
 
-//        // Page number Input
-//         Box(modifier = Modifier.padding(5.dp)) {
-//            TextField(
-//                value = pageNumberText,
-//                onValueChange = {pageNumberText = it},
-//                label = { Text("Page number") },
-//                modifier = Modifier
-//                    .background(color = Color.Transparent)
-//                    .fillMaxWidth()
-//                    .clip(RoundedCornerShape(5.dp)),
-////                colors = TextFieldDefaults.colors(
-////                    focusedContainerColor = Color.White,
-////                    focusedIndicatorColor = Color.Transparent,
-////                    unfocusedIndicatorColor = Color.Transparent
-////                )
-//            )
-//        }
-//
-//        // Page number Input
-//         Box(modifier = Modifier.padding(5.dp)) {
-////            TextField(
-////                value = perPageText,
-////                onValueChange = {perPageText = it},
-////
-////                label = { Text("Photos per page") },
-////                modifier = Modifier
-////                    .background(color = Color.Transparent)
-////                    .fillMaxWidth()
-////                    .clip(RoundedCornerShape(16.dp)),
-////                colors = TextFieldDefaults.colors(
-////                    focusedContainerColor = Color.White,
-////                    focusedIndicatorColor = Color.Transparent,
-////                    unfocusedIndicatorColor = Color.Transparent
-////                )
-////            )
-//             Column {
-//                 Text("Photos per Page: ${perPageText.toInt()}",
-//                     fontSize = 13.sp, modifier = Modifier.padding(vertical = 5.dp))
-//
-//                 Slider(
-//                     value = perPageText,
-//                     onValueChange = { perPageText = it },
-//                     valueRange = 1f..80f, // from 1 to 80
-//                     steps = 78, // split to integer steps
-//                     modifier = Modifier
-//                         .padding(vertical = 5.dp)
-//                         .height(6.dp),
-//                     colors = SliderDefaults.colors(
-//                         thumbColor = Color.Red,
-//                         activeTickColor = Color.Gray,
-//                         inactiveTickColor = Color.Gray,
-//                         activeTrackColor = Color.White,
-//                         inactiveTrackColor = Color.White
-//                     )
-//                 )
-//             }
-//
-//        }
+
 
         // Search
         Box(modifier = Modifier.padding(10.dp)) {
-            // Save search query to store
-            searchHistoryManager.saveSearchQuery("query_history")
 
-            SubmitSearch(encodeUrl(searchText), getOrientation(selecteOrientation), getSize(selectedSize), getColor(selectedColor), encodeUrl(localeText), getPageNumber(pageNumberText), getPhotosPerPage(perPageText))
+            SubmitSearch(searchText, getOrientation(selecteOrientation), getSize(selectedSize), getColor(selectedColor), encodeUrl(localeText), getPageNumber(pageNumberText), getPhotosPerPage(perPageText))
         }
     }
 }
@@ -357,6 +359,7 @@ fun SearchForm() {
 @Composable
 fun SubmitSearch(query: String, orientation: String, size: String, color: String, locale: String, pageNumber: Int, perPage: Int) {
     val context = LocalContext.current
+    val searchHistoryManager = SearchHistoryManager(context)
 
     Button(onClick = {
 
@@ -369,10 +372,14 @@ fun SubmitSearch(query: String, orientation: String, size: String, color: String
             }
             else
             {
+                // Save search query to store
+                searchHistoryManager.saveSearchQuery(query)
+
                 Log.d("Search", "SubmitSearch: $query $orientation $size $color $locale $pageNumber $perPage")
+
                 val intent = Intent(context, PhotoList::class.java).apply()
                 {
-                    putExtra("query", query)
+                    putExtra("query", encodeUrl(query))
                     putExtra("orientation", orientation)
                     putExtra("size", size)
                     putExtra("color", color)
@@ -403,41 +410,4 @@ fun SubmitSearch(query: String, orientation: String, size: String, color: String
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchBar(searchHistory: List<String>, searchText: String, onSearch: (String) -> Unit) {
-    var query by remember { mutableStateOf(searchText) }
-    var isDropdownExpanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = isDropdownExpanded,
-        onExpandedChange = { isDropdownExpanded = it }
-    ) {
-        TextField(
-            value = query,
-            onValueChange = { newText ->
-                query = newText
-                isDropdownExpanded = searchHistory.any { it.contains(newText, ignoreCase = true) } // Hiển thị gợi ý
-            },
-            label = { Text("Searching for...") }
-        )
-
-        ExposedDropdownMenu(
-            expanded = isDropdownExpanded,
-            onDismissRequest = { isDropdownExpanded = false }
-        ) {
-            searchHistory.filter { it.contains(query, ignoreCase = true) }
-                .forEach { suggestion ->
-                    DropdownMenuItem(
-                        text = { Text(suggestion) },
-                        onClick = {
-                            query = suggestion
-                            isDropdownExpanded = false
-                            onSearch(suggestion) // 🔹 Gửi giá trị về MainScreen
-                        }
-                    )
-                }
-        }
-    }
-}
 
