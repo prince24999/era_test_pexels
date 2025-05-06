@@ -39,13 +39,13 @@ class PhotoDetail : ComponentActivity() {
         setContent {
             var selectedIndex by remember { mutableIntStateOf(0) }
 
-            Scaffold(modifier = Modifier.fillMaxWidth(),
-                containerColor = Color.White,
-
-                topBar = {
-                    SharedTopBar("Photo Detail")
-
-                }
+            Scaffold(modifier = Modifier.fillMaxSize(),
+//                containerColor = Color.White,
+//
+//                topBar = {
+//                    SharedTopBar("Photo Detail")
+//
+//                }
             ) { innerPadding ->
                 Box(
                     modifier = Modifier

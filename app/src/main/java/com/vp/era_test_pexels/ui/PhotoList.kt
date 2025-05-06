@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.vp.era_test_pexels.control.apiKey
 
 import com.vp.era_test_pexels.network.Network
 
@@ -46,6 +47,19 @@ class PhotoList : ComponentActivity()
 
         super.onCreate(savedInstanceState)
         setContent {
+            // get String
+            val query: String? = intent.getStringExtra("query")
+            val orientation: String? = intent.getStringExtra("orientation")
+            val size: String? = intent.getStringExtra("size")
+            val color: String? = intent.getStringExtra("color")
+            val locale: String? = intent.getStringExtra("locale")
+
+            // get int, set default if null
+            val pageNumber: Int = intent.getIntExtra("pageNumber", 1)
+            val perPage: Int = intent.getIntExtra("perPage", 15)
+
+            Log.d("PhotoList", "onCreate: $query $orientation $size $color $locale $pageNumber $perPage")
+
             var selectedIndex by remember { mutableIntStateOf(0) }
 
             Scaffold(modifier = Modifier.fillMaxWidth(),
@@ -63,13 +77,13 @@ class PhotoList : ComponentActivity()
                     contentAlignment = Alignment.Center
                 ) {
                     GalleryGrid(
-                        query = "nature",
-                        orientation = "landscape",
-                        size = "medium",
-                        color = "red",
-                        locale = "",
-                        pageNumber = 1,
-                        perPage = 80
+                        query = query.toString(),
+                        orientation = orientation.toString(),
+                        size = size.toString(),
+                        color = color.toString(),
+                        locale = locale.toString(),
+                        pageNumber = pageNumber,
+                        perPage = perPage
                     )
 
                 }
@@ -109,8 +123,6 @@ fun PhotoItem(imageUrl: String, modifier: Modifier = Modifier) {
 @Composable
 fun GalleryGrid(query: String, orientation: String, size: String, color: String, locale: String, pageNumber: Int, perPage: Int)
 {
-    val apiKey = "Y3dDyi8upPyObSyzc6swlKMR0YyGgfLunIoHCvgkXwALQ9cev030eIMQ"
-
     val net = Network()
     val jsonResponse: String = net.fetchPhotos(apiKey, query, orientation, size, color, locale, pageNumber, perPage)
     if (jsonResponse != "e")
