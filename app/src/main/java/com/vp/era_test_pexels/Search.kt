@@ -34,8 +34,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,6 +50,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vp.era_test_pexels.control.SearchHistoryManager
 import com.vp.era_test_pexels.control.encodeUrl
 import com.vp.era_test_pexels.control.getColor
 import com.vp.era_test_pexels.control.getOrientation
@@ -90,6 +93,9 @@ class Search : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchForm() {
+    val context = LocalContext.current
+    val searchHistoryManager = remember { SearchHistoryManager(context) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,25 +115,15 @@ fun SearchForm() {
         var expandedSize by remember { mutableStateOf(false) }
         var expandedColor by remember { mutableStateOf(false) }
 
-        var expanded by remember { mutableStateOf(false) }
 
         // query string , validate only allow char, number
-        var searchText by remember { mutableStateOf("nature") }
+        var searchText by remember { mutableStateOf("") }
         var errorMessage by remember { mutableStateOf<String?>(null) }
-        val validPattern = Regex("^[a-zA-Z0-9]+$")
+        //val validPattern = Regex("^[a-zA-Z0-9]+$")
 
         var localeText by remember { mutableStateOf("") }
         var pageNumberText by remember { mutableStateOf("1") }
         var perPageText by remember { mutableStateOf(15f) }
-
-        val shape = if (expanded) RoundedCornerShape(8.dp).copy(bottomEnd = CornerSize(0.dp), bottomStart = CornerSize(0.dp))
-        else RoundedCornerShape(8.dp)
-
-        val menuItemColors = MenuDefaults.itemColors(
-            leadingIconColor = Color.White,
-            textColor = Color.DarkGray,
-            disabledTextColor = Color.Gray
-        )
 
         // Query String Input
          Box(modifier = Modifier.padding(5.dp)) {
@@ -137,7 +133,7 @@ fun SearchForm() {
                     searchText = it
                     errorMessage = when {
                         searchText.isBlank() -> "Please enter a search query"
-                        !validPattern.matches(searchText) -> "Special char not allow"
+
                         else -> null
                     }
                                 },
@@ -149,13 +145,16 @@ fun SearchForm() {
                 modifier = Modifier
                     .background(color = Color.Transparent)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)),  
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,  
-                    focusedIndicatorColor = Color.Transparent,  
-                    unfocusedIndicatorColor = Color.Transparent
-                )
+                 //   .clip(RoundedCornerShape(16.dp)),
+//                colors = TextFieldDefaults.colors(
+//                    focusedContainerColor = Color.White,
+//                    focusedIndicatorColor = Color.Transparent,
+//                    unfocusedIndicatorColor = Color.Transparent
+//                )
             )
+
+
+
         }
 
         // Orientation Input
@@ -278,75 +277,78 @@ fun SearchForm() {
                     .background(color = Color.Transparent)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(5.dp)),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-        }
-
-        // Page number Input
-         Box(modifier = Modifier.padding(5.dp)) {
-            TextField(
-                value = pageNumberText,
-                onValueChange = {pageNumberText = it},
-                label = { Text("Page number") },
-                modifier = Modifier
-                    .background(color = Color.Transparent)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(5.dp)),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White, 
-                    focusedIndicatorColor = Color.Transparent, 
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-        }
-
-        // Page number Input
-         Box(modifier = Modifier.padding(5.dp)) {
-//            TextField(
-//                value = perPageText,
-//                onValueChange = {perPageText = it},
-//
-//                label = { Text("Photos per page") },
-//                modifier = Modifier
-//                    .background(color = Color.Transparent)
-//                    .fillMaxWidth()
-//                    .clip(RoundedCornerShape(16.dp)),
 //                colors = TextFieldDefaults.colors(
 //                    focusedContainerColor = Color.White,
 //                    focusedIndicatorColor = Color.Transparent,
 //                    unfocusedIndicatorColor = Color.Transparent
 //                )
-//            )
-             Column {
-                 Text("Photos per Page: ${perPageText.toInt()}",
-                     fontSize = 13.sp, modifier = Modifier.padding(vertical = 5.dp))
-
-                 Slider(
-                     value = perPageText,
-                     onValueChange = { perPageText = it },
-                     valueRange = 1f..80f, // from 1 to 80
-                     steps = 78, // split to integer steps
-                     modifier = Modifier
-                         .padding(vertical = 5.dp)
-                         .height(6.dp),
-                     colors = SliderDefaults.colors(
-                         thumbColor = Color.Red,
-                         activeTickColor = Color.Gray,
-                         inactiveTickColor = Color.Gray,
-                         activeTrackColor = Color.White,
-                         inactiveTrackColor = Color.White
-                     )
-                 )
-             }
-
+            )
         }
+
+//        // Page number Input
+//         Box(modifier = Modifier.padding(5.dp)) {
+//            TextField(
+//                value = pageNumberText,
+//                onValueChange = {pageNumberText = it},
+//                label = { Text("Page number") },
+//                modifier = Modifier
+//                    .background(color = Color.Transparent)
+//                    .fillMaxWidth()
+//                    .clip(RoundedCornerShape(5.dp)),
+////                colors = TextFieldDefaults.colors(
+////                    focusedContainerColor = Color.White,
+////                    focusedIndicatorColor = Color.Transparent,
+////                    unfocusedIndicatorColor = Color.Transparent
+////                )
+//            )
+//        }
+//
+//        // Page number Input
+//         Box(modifier = Modifier.padding(5.dp)) {
+////            TextField(
+////                value = perPageText,
+////                onValueChange = {perPageText = it},
+////
+////                label = { Text("Photos per page") },
+////                modifier = Modifier
+////                    .background(color = Color.Transparent)
+////                    .fillMaxWidth()
+////                    .clip(RoundedCornerShape(16.dp)),
+////                colors = TextFieldDefaults.colors(
+////                    focusedContainerColor = Color.White,
+////                    focusedIndicatorColor = Color.Transparent,
+////                    unfocusedIndicatorColor = Color.Transparent
+////                )
+////            )
+//             Column {
+//                 Text("Photos per Page: ${perPageText.toInt()}",
+//                     fontSize = 13.sp, modifier = Modifier.padding(vertical = 5.dp))
+//
+//                 Slider(
+//                     value = perPageText,
+//                     onValueChange = { perPageText = it },
+//                     valueRange = 1f..80f, // from 1 to 80
+//                     steps = 78, // split to integer steps
+//                     modifier = Modifier
+//                         .padding(vertical = 5.dp)
+//                         .height(6.dp),
+//                     colors = SliderDefaults.colors(
+//                         thumbColor = Color.Red,
+//                         activeTickColor = Color.Gray,
+//                         inactiveTickColor = Color.Gray,
+//                         activeTrackColor = Color.White,
+//                         inactiveTrackColor = Color.White
+//                     )
+//                 )
+//             }
+//
+//        }
 
         // Search
         Box(modifier = Modifier.padding(10.dp)) {
+            // Save search query to store
+            searchHistoryManager.saveSearchQuery("query_history")
+
             SubmitSearch(encodeUrl(searchText), getOrientation(selecteOrientation), getSize(selectedSize), getColor(selectedColor), encodeUrl(localeText), getPageNumber(pageNumberText), getPhotosPerPage(perPageText))
         }
     }
@@ -361,7 +363,7 @@ fun SubmitSearch(query: String, orientation: String, size: String, color: String
         // Check internet connection
         if(isInternetAvailable(context))
         {
-            // Check if query is empty, if so, show toast, if not, keep going
+            // Check if query is empty, if so, show toast. if not, keep going
             if (query.isEmpty()) {
                 Toast.makeText(context, "Please type something to search. Ex: nature, tiger, snow, ...", Toast.LENGTH_SHORT).show()
             }
@@ -400,3 +402,42 @@ fun SubmitSearch(query: String, orientation: String, size: String, color: String
         Text("Search", fontSize = 16.sp)
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(searchHistory: List<String>, searchText: String, onSearch: (String) -> Unit) {
+    var query by remember { mutableStateOf(searchText) }
+    var isDropdownExpanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = isDropdownExpanded,
+        onExpandedChange = { isDropdownExpanded = it }
+    ) {
+        TextField(
+            value = query,
+            onValueChange = { newText ->
+                query = newText
+                isDropdownExpanded = searchHistory.any { it.contains(newText, ignoreCase = true) } // Hiển thị gợi ý
+            },
+            label = { Text("Searching for...") }
+        )
+
+        ExposedDropdownMenu(
+            expanded = isDropdownExpanded,
+            onDismissRequest = { isDropdownExpanded = false }
+        ) {
+            searchHistory.filter { it.contains(query, ignoreCase = true) }
+                .forEach { suggestion ->
+                    DropdownMenuItem(
+                        text = { Text(suggestion) },
+                        onClick = {
+                            query = suggestion
+                            isDropdownExpanded = false
+                            onSearch(suggestion) // 🔹 Gửi giá trị về MainScreen
+                        }
+                    )
+                }
+        }
+    }
+}
+

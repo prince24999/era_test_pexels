@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -232,7 +233,8 @@ fun GalleryGrid(
     pageNumber: Int,
     perPage: Int
 ) {
-    var nextPageUrl by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var nextPageUrl by remember { mutableStateOf<String?>(null) }
     var photos by remember { mutableStateOf<List<Photo>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -246,35 +248,49 @@ fun GalleryGrid(
             if (apiResponse != null) {
                 photos = apiResponse.photos
                 Log.d("PhotoList", "New photos size: ${photos.size}")
-                nextPageUrl = apiResponse.nextPage.toString()
+                if(apiResponse.nextPage.isNullOrEmpty())
+                {
+                    nextPageUrl = "1"
+                }
+                else
+                {
+                    nextPageUrl = apiResponse.nextPage.toString()
+                }
+
             }
         }
     }
 
     // watching scroll state to automatically load more data
     LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-            .map { visibleItems ->
-                val lastVisibleItem = visibleItems.lastOrNull()?.index ?: 0
-                val totalItems = photos.size
-                lastVisibleItem >= totalItems - 2 // Check if reach end of List - 2 items
-            }
-            .distinctUntilChanged()
-            .collect { shouldLoadMore ->
-                if (shouldLoadMore && nextPageUrl.isNotEmpty() && !isLoading) {
-                    isLoading = true
-                    val jsonResponse = net.fetchPhotosNextPage(nextPageUrl)
-                    if (jsonResponse != "e") {
-                        val apiResponse = net.parseApiResponse(jsonResponse)
-                        if (apiResponse != null) {
-                            photos = photos + apiResponse.photos
-                            Log.d("PhotoList", "New photos size: ${photos.size}")
-                            nextPageUrl = apiResponse.nextPage.toString()
-                        }
-                    }
-                    isLoading = false
+        if (photos.size > 0) {
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+                .map { visibleItems ->
+                    val lastVisibleItem = visibleItems.lastOrNull()?.index ?: 0
+                    val totalItems = photos.size
+
+                    (lastVisibleItem > totalItems - 2)
+                            || (lastVisibleItem == totalItems)
+
+                // Check if reach end of List - 2 items
                 }
-            }
+                .distinctUntilChanged()
+                .collect { shouldLoadMore ->
+                    if ((shouldLoadMore) && (nextPageUrl != "1") && !isLoading ) {
+                        isLoading = true
+                        val jsonResponse = net.fetchPhotosNextPage(nextPageUrl.toString())
+                        if (jsonResponse != "e") {
+                            val apiResponse = net.parseApiResponse(jsonResponse)
+                            if (apiResponse != null) {
+                                photos = photos + apiResponse.photos
+                                Log.d("PhotoList", "New photos size: ${photos.size}")
+                                nextPageUrl = apiResponse.nextPage.toString()
+                            }
+                        }
+                        isLoading = false
+                    }
+                }
+        }
     }
     Scaffold(
         floatingActionButton = {
@@ -302,33 +318,57 @@ fun GalleryGrid(
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-
-            LazyVerticalGrid(
-                state = listState,
-                columns = GridCells.Adaptive(minSize = 300.dp),
-                modifier = Modifier.padding(8.dp)
-            ) {
-                items(photos.count()) { index ->
-
-                    PhotoItem(
-                        photos[index].photographer,
-                        photos[index].alt,
-                        calculateOrientationAndSizeOfPhoto(photos[index], orientation, size),
-                        photos[index].src.original
-                    )
-                }
-
-            }
-            if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f)), // Hiệu ứng mờ nền
-                    contentAlignment = Alignment.Center
+            if(photos.isNotEmpty())
+            {
+                LazyVerticalGrid(
+                    state = listState,
+                    columns = GridCells.Adaptive(minSize = 300.dp),
+                    modifier = Modifier.padding(8.dp)
                 ) {
-                    CircularProgressIndicator(color = Color.White)
+                    items(photos.count()) { index ->
+
+                        PhotoItem(
+                            photos[index].photographer,
+                            photos[index].alt,
+                            calculateOrientationAndSizeOfPhoto(photos[index], orientation, size),
+                            photos[index].src.original
+                        )
+                    }
+
                 }
             }
+            else
+            {
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f)), // Hiệu ứng mờ nền
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
+                }
+                else {
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f)), // Hiệu ứng mờ nền
+                        contentAlignment = Alignment.Center
+                    ) {
+                        //CircularProgressIndicator(color = Color.Red)
+                                            Text(
+                        "No Photos Found",
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                        color = Color.LightGray,
+                        fontSize = 14.sp
+                    )
+                    }
+                }
+            }
+
+
         }
     }
 }
