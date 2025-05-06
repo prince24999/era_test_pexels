@@ -2,6 +2,7 @@ package com.vp.era_test_pexels.network
 
 import android.util.Log
 import com.google.gson.Gson
+import com.vp.era_test_pexels.control.photoSearchBaseUrl
 import com.vp.era_test_pexels.model.ApiResponse
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -29,7 +30,7 @@ class Network {
             //val json = """{"key": "value"}"""
             //val mediaType = "application/json".toMediaType()
             //val body = json.toRequestBody(mediaType)
-            val requestUrl: String = "https://api.pexels.com/v1/search?query=$query&orientation=$orientation&size=$size&color=$color&locale=$locale&page=$pageNumber&per_page=$perPage"
+            val requestUrl: String = photoSearchBaseUrl + "query=$query&orientation=$orientation&size=$size&color=$color&locale=$locale&page=$pageNumber&per_page=$perPage"
             val request = Request.Builder()
                 .url(requestUrl)
                 .addHeader("Authorization", apiKey)

@@ -3,6 +3,7 @@ package com.vp.era_test_pexels
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalGraphicsContext
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
@@ -51,6 +54,7 @@ import com.vp.era_test_pexels.control.getOrientation
 import com.vp.era_test_pexels.control.getPageNumber
 import com.vp.era_test_pexels.control.getPhotosPerPage
 import com.vp.era_test_pexels.control.getSize
+import com.vp.era_test_pexels.control.isInternetAvailable
 import com.vp.era_test_pexels.ui.PhotoList
 import com.vp.era_test_pexels.ui.main.SharedNavigationBar
 import com.vp.era_test_pexels.ui.main.SharedTopBar
@@ -105,7 +109,12 @@ fun SearchForm() {
         var expandedOrientation by remember { mutableStateOf(false) }
         var expandedSize by remember { mutableStateOf(false) }
         var expandedColor by remember { mutableStateOf(false) }
+
+        // query string , validate only allow char, number
         var searchText by remember { mutableStateOf("nature") }
+        var errorMessage by remember { mutableStateOf<String?>(null) }
+        val validPattern = Regex("^[a-zA-Z0-9]+$")
+
         var localeText by remember { mutableStateOf("") }
         var pageNumberText by remember { mutableStateOf("1") }
         var perPageText by remember { mutableStateOf(15f) }
@@ -116,8 +125,19 @@ fun SearchForm() {
          Box(modifier = Modifier.padding(5.dp)) {
             TextField(
                 value = searchText,
-                onValueChange = {searchText = it},
+                onValueChange = {
+                    searchText = it
+                    errorMessage = when {
+                        searchText.isBlank() -> "Please enter a search query"
+                        !validPattern.matches(searchText) -> "Special char not allow"
+                        else -> null
+                    }
+                                },
                 label = { Text("Type something here for Search") },
+                isError = errorMessage != null,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
                 modifier = Modifier
                     .background(color = Color.Transparent)
                     .fillMaxWidth()
@@ -128,6 +148,14 @@ fun SearchForm() {
                     unfocusedIndicatorColor = Color.Transparent
                 )
             )
+//             if (errorMessage != null) {
+//                 Text(
+//                     text = errorMessage ?: "",
+//                     color = Color.Red,
+//                     fontSize = 12.sp,
+//                     modifier = Modifier.padding(top = 4.dp)
+//                 )
+//             }
         }
 
         // Orientation Input
@@ -336,18 +364,36 @@ fun SubmitSearch(query: String, orientation: String, size: String, color: String
     val context = LocalContext.current
 
     Button(onClick = {
-        Log.d("Search", "SubmitSearch: $query $orientation $size $color $locale $pageNumber $perPage")
-        val intent = Intent(context, PhotoList::class.java).apply()
+
+        // Check internet connection
+        if(isInternetAvailable(context))
         {
-            putExtra("query", query)
-            putExtra("orientation", orientation)
-            putExtra("size", size)
-            putExtra("color", color)
-            putExtra("locale", locale)
-            putExtra("pageNumber", pageNumber)
-            putExtra("perPage", perPage)
+            // Check if query is empty, if so, show toast, if not, keep going
+            if (query.isEmpty()) {
+                Toast.makeText(context, "Please type something to search. Ex: nature, tiger, snow, ...", Toast.LENGTH_SHORT).show()
+            }
+            else
+            {
+                Log.d("Search", "SubmitSearch: $query $orientation $size $color $locale $pageNumber $perPage")
+                val intent = Intent(context, PhotoList::class.java).apply()
+                {
+                    putExtra("query", query)
+                    putExtra("orientation", orientation)
+                    putExtra("size", size)
+                    putExtra("color", color)
+                    putExtra("locale", locale)
+                    putExtra("pageNumber", pageNumber)
+                    putExtra("perPage", perPage)
+                }
+                context.startActivity(intent)
+            }
         }
-        context.startActivity(intent)
+        else
+        {
+            Toast.makeText(context, "Please connect to internet", Toast.LENGTH_SHORT).show()
+        }
+
+
     }
         ,
         modifier = Modifier
