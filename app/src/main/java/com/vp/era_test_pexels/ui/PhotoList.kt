@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.vp.era_test_pexels.control.apiKey
+import com.vp.era_test_pexels.control.calculateOrientationAndSizeOfPhoto
 
 import com.vp.era_test_pexels.network.Network
 
@@ -139,7 +140,7 @@ fun GalleryGrid(query: String, orientation: String, size: String, color: String,
                 modifier = Modifier.padding(8.dp)
             ) {
                 items(photos.count()) { index ->
-                    PhotoItem(photos[index].src.medium)
+                    PhotoItem(calculateOrientationAndSizeOfPhoto(photos[index], orientation, size))
                 }
             }
         }

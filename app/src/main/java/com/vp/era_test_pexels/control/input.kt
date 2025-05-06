@@ -1,5 +1,6 @@
 package com.vp.era_test_pexels.control
 
+import com.vp.era_test_pexels.model.Photo
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -59,6 +60,26 @@ fun getPageNumber(pageNumber: String): Int
 fun getPhotosPerPage(perPageText: Float?): Int
 {
     return perPageText?.toInt() ?: 15 // if null, return 15
+}
+
+fun calculateOrientationAndSizeOfPhoto(photoInput: Photo, orientation: String, size: String): String
+{
+    var result: String = ""
+
+    if (orientation == "landscape")
+    {
+        result = photoInput.src.landscape
+    }
+    else if (orientation == "portrait")
+    {
+        result = photoInput.src.portrait
+    }
+    else
+    {
+        result = photoInput.src.original
+    }
+
+    return result
 }
 
 
