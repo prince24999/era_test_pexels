@@ -127,12 +127,12 @@ fun PhotoItem(photographer: String, alt: String,imageUrl: String, originalUrl: S
                     .fillMaxWidth()
                     .height(200.dp)
             )
-            // Footer chồng lên phía dưới ảnh
+            // Footer on top of Image
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter) // Căn footer xuống đáy
-                    .background(Color.Black.copy(alpha = 0.6f)) // Màu nền mờ
+                    .align(Alignment.BottomCenter)
+                    .background(Color.Black.copy(alpha = 0.6f))
                     .padding(8.dp)
             ) {
                 Column(modifier = Modifier.align(Alignment.CenterStart)) {

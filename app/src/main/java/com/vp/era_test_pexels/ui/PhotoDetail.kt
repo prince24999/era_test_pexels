@@ -67,8 +67,8 @@ class PhotoDetail : ComponentActivity() {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.BottomCenter) // Căn footer xuống đáy
-                            .background(Color.Black.copy(alpha = 0.5f)) // Màu nền mờ
+                            .align(Alignment.BottomCenter)
+                            .background(Color.Black.copy(alpha = 0.6f))
                             .padding(8.dp)
                     ) {
                         Column(modifier = Modifier.align(Alignment.CenterStart)) {
