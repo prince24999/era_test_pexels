@@ -185,6 +185,65 @@ fun GalleryGrid(query: String, orientation: String, size: String, color: String,
         }
     }
 
-
-
 }
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun PhotoGridScreen() {
+//    val context = LocalContext.current
+//    val photoList = remember { mutableStateListOf<String>() } // Danh sách ảnh
+//    var nextPageUrl by remember { mutableStateOf<String?>(null) } // URL trang tiếp theo
+//    var isLoading by remember { mutableStateOf(false) } // Trạng thái tải thêm dữ liệu
+//    var isRefreshing by remember { mutableStateOf(false) } // Trạng thái pull-down refresh
+//
+//    // 🌟 Gọi API trang đầu tiên khi mở form hoặc khi refresh
+//    fun refreshPhotos() {
+//        isRefreshing = true
+//        photoList.clear() // Xóa danh sách cũ
+//        loadPhotos("https://api.pexels.com/v1/search?query=nature&page=1&per_page=10", photoList) {
+//            nextPageUrl = it
+//            isRefreshing = false
+//        }
+//    }
+//
+//    LaunchedEffect(Unit) { refreshPhotos() }
+//
+//    SwipeRefresh(
+//        state = rememberSwipeRefreshState(isRefreshing),
+//        onRefresh = { refreshPhotos() } // Gọi API khi kéo xuống
+//    ) {
+//        LazyVerticalGrid(
+//            columns = GridCells.Adaptive(120.dp),
+//            modifier = Modifier.fillMaxSize(),
+//            contentPadding = PaddingValues(8.dp)
+//        ) {
+//            items(photoList) { imageUrl ->
+//                Card(modifier = Modifier.padding(4.dp)) {
+//                    Image(
+//                        painter = rememberAsyncImagePainter(imageUrl),
+//                        contentDescription = null,
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier.fillMaxWidth().height(150.dp)
+//                    )
+//                }
+//            }
+//
+//            // 🔄 Hiển thị loading khi scroll xuống để tải `next_page`
+//            if (isLoading) {
+//                item {
+//                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+//                }
+//            }
+//        }
+//    }
+//
+//    // 🌟 Khi cuộn đến cuối, tự động tải trang kế tiếp
+//    LaunchedEffect(photoList.size) {
+//        nextPageUrl?.let { url ->
+//            isLoading = true
+//            loadPhotos(url, photoList) {
+//                nextPageUrl = it
+//            }
+//            isLoading = false
+//        }
+//    }
+//}
