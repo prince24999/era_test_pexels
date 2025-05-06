@@ -6,7 +6,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +25,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -33,7 +35,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,12 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import com.vp.era_test_pexels.control.encodeUrl
 import com.vp.era_test_pexels.control.getColor
 import com.vp.era_test_pexels.control.getOrientation
@@ -56,7 +56,6 @@ import com.vp.era_test_pexels.control.getPhotosPerPage
 import com.vp.era_test_pexels.control.getSize
 import com.vp.era_test_pexels.control.isInternetAvailable
 import com.vp.era_test_pexels.ui.PhotoList
-import com.vp.era_test_pexels.ui.main.SharedNavigationBar
 import com.vp.era_test_pexels.ui.main.SharedTopBar
 
 class Search : ComponentActivity() {
@@ -110,6 +109,8 @@ fun SearchForm() {
         var expandedSize by remember { mutableStateOf(false) }
         var expandedColor by remember { mutableStateOf(false) }
 
+        var expanded by remember { mutableStateOf(false) }
+
         // query string , validate only allow char, number
         var searchText by remember { mutableStateOf("nature") }
         var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -119,7 +120,14 @@ fun SearchForm() {
         var pageNumberText by remember { mutableStateOf("1") }
         var perPageText by remember { mutableStateOf(15f) }
 
+        val shape = if (expanded) RoundedCornerShape(8.dp).copy(bottomEnd = CornerSize(0.dp), bottomStart = CornerSize(0.dp))
+        else RoundedCornerShape(8.dp)
 
+        val menuItemColors = MenuDefaults.itemColors(
+            leadingIconColor = Color.White,
+            textColor = Color.DarkGray,
+            disabledTextColor = Color.Gray
+        )
 
         // Query String Input
          Box(modifier = Modifier.padding(5.dp)) {
@@ -148,19 +156,12 @@ fun SearchForm() {
                     unfocusedIndicatorColor = Color.Transparent
                 )
             )
-//             if (errorMessage != null) {
-//                 Text(
-//                     text = errorMessage ?: "",
-//                     color = Color.Red,
-//                     fontSize = 12.sp,
-//                     modifier = Modifier.padding(top = 4.dp)
-//                 )
-//             }
         }
 
         // Orientation Input
          Box(modifier = Modifier.padding(5.dp)) {
             ExposedDropdownMenuBox(
+
                 expanded = expandedOrientation,
                 onExpandedChange = { expandedOrientation = !expandedOrientation }
             ) {
@@ -171,27 +172,23 @@ fun SearchForm() {
                     label = { Text("Select Orientation") },
                     modifier = Modifier
                         .menuAnchor()
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp)),  
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,  
-                        focusedIndicatorColor = Color.Transparent,  
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
+                        .fillMaxWidth(),
                 )
-                ExposedDropdownMenu(
+                ExposedDropdownMenu(modifier = Modifier.background(Color.White).padding(0.dp),
                     expanded = expandedOrientation,
                     onDismissRequest = { expandedOrientation = false }
                 ) {
                     optionsOrientation.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option) },
-                            onClick = {
-                                selecteOrientation = option
-                                expandedOrientation = false
-                            },
-                            modifier = Modifier.clip(RoundedCornerShape(12.dp))  
-                        )
+
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+                                    selecteOrientation = option
+                                    expandedOrientation = false
+                                },
+
+                            )
+
                     }
                 }
             }
@@ -211,14 +208,10 @@ fun SearchForm() {
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp)),  
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,  
-                        focusedIndicatorColor = Color.Transparent,  
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
+                        //.clip(RoundedCornerShape(16.dp)),
+
                 )
-                ExposedDropdownMenu(
+                ExposedDropdownMenu(modifier = Modifier.background(Color.White).padding(0.dp),
                     expanded = expandedSize,
                     onDismissRequest = { expandedSize = false }
                 ) {
@@ -229,7 +222,7 @@ fun SearchForm() {
                                 selectedSize = option
                                 expandedSize = false
                             },
-                            modifier = Modifier.clip(RoundedCornerShape(12.dp))  
+                            //modifier = Modifier.clip(RoundedCornerShape(12.dp))
                         )
                     }
                 }
@@ -250,14 +243,14 @@ fun SearchForm() {
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp)),  
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,  
-                        focusedIndicatorColor = Color.Transparent,  
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
+                        //.clip(RoundedCornerShape(16.dp)),
+//                    colors = TextFieldDefaults.colors(
+//                        focusedContainerColor = Color.White,
+//                        focusedIndicatorColor = Color.Transparent,
+//                        unfocusedIndicatorColor = Color.Transparent
+//                    )
                 )
-                ExposedDropdownMenu(
+                ExposedDropdownMenu(modifier = Modifier.background(Color.White).padding(0.dp),
                     expanded = expandedColor,
                     onDismissRequest = { expandedColor = false }
                 ) {
@@ -268,7 +261,7 @@ fun SearchForm() {
                                 selectedColor = option
                                 expandedColor = false
                             },
-                            modifier = Modifier.clip(RoundedCornerShape(12.dp))  
+                            //modifier = Modifier.clip(RoundedCornerShape(12.dp))
                         )
                     }
                 }
@@ -284,10 +277,10 @@ fun SearchForm() {
                 modifier = Modifier
                     .background(color = Color.Transparent)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp)),  
+                    .clip(RoundedCornerShape(16.dp)),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,  
-                    focusedIndicatorColor = Color.Transparent,  
+                    focusedContainerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 )
             )
