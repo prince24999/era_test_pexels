@@ -70,7 +70,7 @@ import kotlinx.coroutines.flow.map
 
 class PhotoList : ComponentActivity()
 {
-    //@RequiresApi(Build.VERSION_CODES.R)
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitAll().build())
@@ -90,9 +90,7 @@ class PhotoList : ComponentActivity()
 
             Log.d("PhotoList", "onCreate: $query $orientation $size $color $locale $pageNumber $perPage")
 
-            var selectedIndex by remember { mutableIntStateOf(0) }
 
-            //FullScreenEffect() // overlap statusbar
             Scaffold(modifier = Modifier.fillMaxWidth(),
                 //containerColor = Color.White,
 
@@ -366,8 +364,7 @@ fun GalleryGrid(
                         contentAlignment = Alignment.Center
                     ) {
                         //CircularProgressIndicator(color = Color.Red)
-                                            Text(
-                        "No Photos Found",
+                        Text("No Photos Found",
                         modifier = Modifier.align(Alignment.Center).padding(16.dp),
                         color = Color.LightGray,
                         fontSize = 14.sp

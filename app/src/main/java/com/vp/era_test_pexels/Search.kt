@@ -82,7 +82,7 @@ class Search : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             var selectedIndex by remember { mutableIntStateOf(0) }
-            //FullScreenEffect() // overlap statusbar
+
             Scaffold(modifier = Modifier.fillMaxSize(),
                 //containerColor = Color.White,
 
@@ -178,7 +178,7 @@ fun SearchForm() {
         val optionsColor = listOf("","red", "orange", "yellow","green","turquoise","blue","violet","pink","brown","black","gray","white")
         var selectedSize by remember { mutableStateOf(optionsSize[0]) }
         var selectedColor by remember { mutableStateOf(optionsColor[0]) }
-        var selecteOrientation by remember { mutableStateOf(optionsOrientation[0]) }
+        var selectedOrientation by remember { mutableStateOf(optionsOrientation[0]) }
         var expandedOrientation by remember { mutableStateOf(false) }
         var expandedSize by remember { mutableStateOf(false) }
         var expandedColor by remember { mutableStateOf(false) }
@@ -186,7 +186,7 @@ fun SearchForm() {
 
         // query string
         var searchText by remember { mutableStateOf("") }
-        var errorMessage by remember { mutableStateOf<String?>(null) }
+
         //val validPattern = Regex("^[a-zA-Z0-9]+$")
 
         var localeText by remember { mutableStateOf("") }
@@ -240,8 +240,8 @@ fun SearchForm() {
                 onExpandedChange = { expandedOrientation = !expandedOrientation }
             ) {
                 TextField(
-                    value = selecteOrientation,
-                    onValueChange = {selecteOrientation = it},
+                    value = selectedOrientation,
+                    onValueChange = {selectedOrientation = it},
                     readOnly = true,
                     label = { Text("Select Orientation") },
                     modifier = Modifier
@@ -257,7 +257,7 @@ fun SearchForm() {
                             DropdownMenuItem(
                                 text = { Text(option) },
                                 onClick = {
-                                    selecteOrientation = option
+                                    selectedOrientation = option
                                     expandedOrientation = false
                                 },
 
@@ -365,7 +365,7 @@ fun SearchForm() {
         // Search
         Box(modifier = Modifier.padding(10.dp)) {
 
-            SubmitSearch(searchText, getOrientation(selecteOrientation), getSize(selectedSize), getColor(selectedColor), encodeUrl(localeText), getPageNumber(pageNumberText), getPhotosPerPage(perPageText))
+            SubmitSearch(searchText, getOrientation(selectedOrientation), getSize(selectedSize), getColor(selectedColor), encodeUrl(localeText), getPageNumber(pageNumberText), getPhotosPerPage(perPageText))
         }
     }
 }

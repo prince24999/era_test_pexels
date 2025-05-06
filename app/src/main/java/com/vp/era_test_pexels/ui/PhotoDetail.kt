@@ -54,15 +54,11 @@ class PhotoDetail : ComponentActivity() {
 
         Log.d("PhotoDetail", "PhotoDetailUrl: $imageUrl")
         setContent {
-            var selectedIndex by remember { mutableIntStateOf(0) }
+
             FullScreenEffect() // overlap statusbar
+
             Scaffold(modifier = Modifier.fillMaxSize(),
-//                containerColor = Color.White,
-//
-//                topBar = {
-//                    SharedTopBar("Photo Detail")
-//
-//                }
+
             ) { innerPadding ->
                 Box(
                     modifier = Modifier
