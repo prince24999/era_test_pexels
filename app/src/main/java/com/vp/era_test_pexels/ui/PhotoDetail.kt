@@ -129,14 +129,16 @@ fun ZoomableImageScreen(imageUrl: String) {
                     //  scale limit update from 1x to 5x
                     scale = (scale * zoom).coerceIn(1f, 5f)
 
-                    //  fillMaxSize() and scale = 1 then image fit to container,
-                    // calculate :
-                    // maxOffsetX = (containerWidth * (scale - 1)) / 2
+
+                    // calculate : limit X (horizontal) to prevent image overflow
+
                     val maxOffsetX = if (scale > 1f) (containerSize.width * (scale - 1f)) / 2f else 0f
                     offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
 
-                    // Y : vertical is free
-                    offsetY += pan.y
+                    // calculate : limit Y (vertical) to prevent image overflow
+                    val maxOffsetY = if (scale > 1f) (containerSize.height * (scale - 1f)) / 2f else 0f
+                    offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                    //offsetY += pan.y
                 }
             }
             //  scale and translation for image

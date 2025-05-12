@@ -40,6 +40,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -102,8 +103,8 @@ class PhotoList : ComponentActivity()
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding).background(Color.White),
-
+                        .padding(innerPadding)
+                        .background(color = Color.Blue),
                     contentAlignment = Alignment.TopCenter
                 ) {
                     GalleryGrid(
@@ -126,7 +127,7 @@ class PhotoList : ComponentActivity()
 fun PhotoItem(photographer: String, alt: String,imageUrl: String, originalUrl: String, modifier: Modifier = Modifier) {
     Log.d("PhotoList", "PhotoItemUrl: $imageUrl")
     val context = LocalContext.current
-    var isImageLoading by remember { mutableStateOf(true) }
+    var isImageLoading by rememberSaveable { mutableStateOf(true) }
 
     Card(
         shape = RoundedCornerShape(10.dp),
@@ -147,7 +148,7 @@ fun PhotoItem(photographer: String, alt: String,imageUrl: String, originalUrl: S
         Box(modifier = Modifier.fillMaxWidth()) {
 
             if (isImageLoading) {
-                CircularProgressIndicator(color = Color.White)
+                CircularProgressIndicator(color = Color.Red)
             }
 
             Image(
@@ -360,10 +361,9 @@ fun GalleryGrid(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.5f)), // Hiệu ứng mờ nền
+                            .background(Color.White),
                         contentAlignment = Alignment.Center
                     ) {
-                        //CircularProgressIndicator(color = Color.Red)
                         Text("No Photos Found",
                         modifier = Modifier.align(Alignment.Center).padding(16.dp),
                         color = Color.LightGray,

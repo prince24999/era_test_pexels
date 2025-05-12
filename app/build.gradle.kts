@@ -42,6 +42,7 @@ android {
 
 dependencies {
 
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.31.1-alpha")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.31.1-alpha")
     implementation ("androidx.compose.ui:ui:1.5.0")
