@@ -70,6 +70,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import com.vp.era_test_pexels.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.coroutineScope
 
 
 class PhotoList : ComponentActivity()
@@ -256,71 +260,77 @@ fun GalleryGrid(
 
     suspend fun fetchAndParseToPhotos()
     {
+        if(isLoading) {
+            val jsonResponse = net.fetchPhotos(
+                apiKey,
+                query,
+                orientation,
+                size,
+                color,
+                locale,
+                pageNumber,
+                perPage
+            )
 
-        val jsonResponse = net.fetchPhotos(apiKey, query, orientation, size, color, locale, pageNumber, perPage)
+            if (jsonResponse != "e") {
+                val apiResponse = net.parseApiResponse(jsonResponse)
+                if (apiResponse != null) {
+                    photos = apiResponse.photos
 
-        if (jsonResponse != "e")
-        {
-            val apiResponse = net.parseApiResponse(jsonResponse)
-            if (apiResponse != null)
-            {
-                photos = apiResponse.photos
+                    Log.d("PhotoList", "New photos size: ${photos.size}")
 
-                Log.d("PhotoList", "New photos size: ${photos.size}")
+                    nextPageUrl = if (apiResponse.nextPage.isNullOrEmpty()) {
+                        "1"
+                    } else {
+                        apiResponse.nextPage.toString()
+                    }
 
-                nextPageUrl = if(apiResponse.nextPage.isNullOrEmpty()) {
-                    "1"
-                } else {
-                    apiResponse.nextPage.toString()
                 }
-
             }
+            delay(700)
+            isLoading = false
         }
-        delay(300)
     }
 
     suspend fun fetchAndParseToPhotosNextPage()
     {
+        if(isLoading) {
+            val jsonResponse = net.fetchPhotosNextPage(nextPageUrl.toString())
+            if (jsonResponse != "e") {
+                val apiResponse = net.parseApiResponse(jsonResponse)
+                if (apiResponse != null) {
+                    photos = photos + apiResponse.photos
+                    Log.d("PhotoList", "New photos size: ${photos.size}")
+                    nextPageUrl = if (apiResponse.nextPage.isNullOrEmpty()) {
+                        "1"
+                    } else {
+                        apiResponse.nextPage.toString()
+                    }
 
-        val jsonResponse = net.fetchPhotosNextPage(nextPageUrl.toString())
-        if (jsonResponse != "e") {
-            val apiResponse = net.parseApiResponse(jsonResponse)
-            if (apiResponse != null) {
-                photos = photos + apiResponse.photos
-                Log.d("PhotoList", "New photos size: ${photos.size}")
-                nextPageUrl = if(apiResponse.nextPage.isNullOrEmpty()) {
-                    "1"
-                } else {
-                    apiResponse.nextPage.toString()
                 }
-
             }
+
+
+            delay(700)
+            isLoading = false
         }
-
-
-        delay(300)
     }
 
     LaunchedEffect(isLoadNew)
     {
-        Log.d("PhotoListLaunchedEffect", "LaunchedEffect - isLoadNew: $isLoadNew")
-        if(isLoadNew)
+        //Log.d("PhotoListLaunchedEffect", "LaunchedEffect - isLoadNew: $isLoadNew")
+        if(isLoadNew  && isLoading)
         {
             Log.d("PhotoListLaunchedEffect", "Fetching data")
-            isLoading = true
+
             photos = emptyList()
             fetchAndParseToPhotos()
             isLoading = false
             isLoadNew = false
         }
-        Log.d("PhotoListLaunchedEffect", "LaunchedEffect -  isLoadNew: $isLoadNew")
+        //Log.d("PhotoListLaunchedEffect", "LaunchedEffect -  isLoadNew: $isLoadNew")
     }
-    LaunchedEffect(isLoading)
-    {
-        if(isLoading) {
 
-        }
-    }
 
     // watching scroll state to automatically load more data
     LaunchedEffect(listState) {
@@ -349,11 +359,18 @@ fun GalleryGrid(
     // Refresh Button
     Scaffold(
         floatingActionButton = {
+            val coroutineScope = rememberCoroutineScope()
             FloatingActionButton(
                 containerColor = Color.DarkGray,
                 contentColor = Color.White,
                 onClick = {
+                    coroutineScope.launch {
+                        listState.scrollToItem(0) // Cuộn lên đầu danh sách
+                    }
                     isLoadNew = true
+                    isLoading = true
+                    photos = emptyList()
+                    nextPageUrl = null
                     Log.d("PhotoListLaunchedEffect", "FAB - Load new data")
                 }
             ) {
@@ -364,21 +381,38 @@ fun GalleryGrid(
         Box(modifier = Modifier.padding(paddingValues)) {
             if (isLoading)
             {
-                Log.d("LaunchedEffect", "isLoading - true")
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f)), // Hiệu ứng mờ nền
+                        .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
                     //CircularProgressIndicator(color = Color.White)
+                    Log.d("LaunchedEffect", "isLoading - $isLoading")
+                    Log.d("LaunchedEffect", "Show progress  bar")
                     LinearProgressIndicator()
 
                 }
             }
+            else if (photos.isEmpty())
+            {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No Photos Found",
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                        color = Color.LightGray,
+                        fontSize = 14.sp
+                    )
+                }
+            }
             else {
-                if(photos.isNotEmpty())
-                {
+//                if(photos.isNotEmpty())
+//                {
                     // Grid of photos
                     LazyVerticalGrid(
                         state = listState,
@@ -396,22 +430,11 @@ fun GalleryGrid(
                         }
 
                     }
-                }
-                else
-                {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.White),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No Photos Found",
-                            modifier = Modifier.align(Alignment.Center).padding(16.dp),
-                            color = Color.LightGray,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
+//                }
+//                else
+//                {
+//
+//                }
 
             }
 

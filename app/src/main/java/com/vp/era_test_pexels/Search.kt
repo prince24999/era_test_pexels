@@ -120,7 +120,7 @@ fun AutoCompleteTextField(
     suggestions: List<String>,
     onItemSelected: (String) -> Unit
 ) {
-    var text by remember { mutableStateOf("fire") }
+    var text by remember { mutableStateOf("river") }
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
