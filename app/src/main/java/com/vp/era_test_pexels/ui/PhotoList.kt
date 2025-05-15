@@ -134,30 +134,27 @@ class PhotoList : ComponentActivity()
 fun PhotoItem(photographer: String, alt: String,imageUrl: String, originalUrl: String, modifier: Modifier = Modifier) {
     Log.d("PhotoList", "PhotoItemUrl: $imageUrl")
     val context = LocalContext.current
-    var isImageLoading by rememberSaveable { mutableStateOf(true) }
-
-    val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data("https://example.com/image.jpg")
-            .placeholder(R.drawable.loading) // Ảnh tạm trước khi load xong
-            .build()
-    )
-
 
     Card(
         shape = RoundedCornerShape(10.dp),
         modifier = modifier.padding(8.dp)
             .clickable {
-                Log.d("PhotoList", "PhotoItemClicked: $imageUrl")
+                Log.d("PhotoList", "PhotoItemClicked: $originalUrl")
 
-                val intent = Intent(context, PhotoDetail::class.java).apply()
-                {
-                    putExtra("src", imageUrl)
-                    putExtra("originalUrl", originalUrl)
-                    putExtra("photographer", photographer)
-                    putExtra("alt", alt)
+                try {
+                    val intent = Intent(context, PhotoDetail::class.java).apply()
+                    {
+                        putExtra("originalUrl", originalUrl)
+                        putExtra("photographer", photographer)
+                        putExtra("alt", alt)
+                    }
+                    context.startActivity(intent)
                 }
-                context.startActivity(intent)
+                catch (e: Exception)
+                {
+                    Log.e("PhotoList", "PhotoItemClicked: $e")
+                }
+
             }
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -365,7 +362,7 @@ fun GalleryGrid(
                 contentColor = Color.White,
                 onClick = {
                     coroutineScope.launch {
-                        listState.scrollToItem(0) // Cuộn lên đầu danh sách
+                        listState.scrollToItem(0)
                     }
                     isLoadNew = true
                     isLoading = true

@@ -1,6 +1,8 @@
 package com.vp.era_test_pexels.model
 
 import com.google.gson.annotations.SerializedName
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 data class ApiResponse(
     val page: Int,
@@ -10,6 +12,7 @@ data class ApiResponse(
     @SerializedName("next_page") val nextPage: String?
 )
 
+@Parcelize
 data class Photo(
     val id: Int,
     val width: Int,
@@ -22,8 +25,9 @@ data class Photo(
     val src: PhotoSource,
     val liked: Boolean,
     val alt: String
-)
+) : Parcelable
 
+@Parcelize
 data class PhotoSource(
     val original: String,
     val large2x: String,
@@ -33,5 +37,5 @@ data class PhotoSource(
     val portrait: String,
     val landscape: String,
     val tiny: String
-)
+): Parcelable
 

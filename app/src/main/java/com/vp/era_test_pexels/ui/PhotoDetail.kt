@@ -49,10 +49,11 @@ class PhotoDetail : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val imageUrl = intent.getStringExtra("originalUrl")
+        Log.d("PhotoDetail", "PhotoDetailUrl: $imageUrl")
         val photographer = intent.getStringExtra("photographer")
         val alt = intent.getStringExtra("alt")
 
-        Log.d("PhotoDetail", "PhotoDetailUrl: $imageUrl")
+        //Log.d("PhotoDetail", "PhotoDetailUrl: $imageUrl")
         setContent {
 
             FullScreenEffect() // overlap statusbar
@@ -136,9 +137,9 @@ fun ZoomableImageScreen(imageUrl: String) {
                     offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
 
                     // calculate : limit Y (vertical) to prevent image overflow
-                    val maxOffsetY = if (scale > 1f) (containerSize.height * (scale - 1f)) / 2f else 0f
-                    offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
-                    //offsetY += pan.y
+//                    val maxOffsetY = if (scale > 1f) (containerSize.height * (scale - 1f)) / 2f else 0f
+//                    offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                    offsetY += pan.y
                 }
             }
             //  scale and translation for image

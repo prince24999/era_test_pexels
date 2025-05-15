@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id ("kotlin-parcelize")
 }
 
 android {
@@ -42,6 +43,7 @@ android {
 
 dependencies {
 
+    implementation ("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.31.1-alpha")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.31.1-alpha")
