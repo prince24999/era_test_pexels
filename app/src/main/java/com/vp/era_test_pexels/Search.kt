@@ -1,20 +1,11 @@
 package com.vp.era_test_pexels
 
-import android.R.attr.enabled
-import android.R.attr.type
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,52 +13,33 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.CheckboxDefaults.colors
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-
 import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedTextField
-
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import com.vp.era_test_pexels.control.SearchHistoryManager
 import com.vp.era_test_pexels.control.encodeUrl
 import com.vp.era_test_pexels.control.getColor
@@ -78,12 +50,11 @@ import com.vp.era_test_pexels.control.getSize
 import com.vp.era_test_pexels.control.isInternetAvailable
 import com.vp.era_test_pexels.ui.PhotoList
 import com.vp.era_test_pexels.ui.main.SharedTopBar
-import androidx.compose.foundation.layout.statusBars
 
 
 class Search : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterial3Api::class)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -120,7 +91,7 @@ fun AutoCompleteTextField(
     suggestions: List<String>,
     onItemSelected: (String) -> Unit
 ) {
-    var text by remember { mutableStateOf("river") }
+    var text by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -202,8 +173,8 @@ fun SearchForm() {
         //val validPattern = Regex("^[a-zA-Z0-9]+$")
 
         var localeText by remember { mutableStateOf("en-US") }
-        var pageNumberText by remember { mutableStateOf("1") }
-        var perPageText by remember { mutableStateOf(15f) }
+        val pageNumberText by remember { mutableStateOf("1") }
+        val perPageText by remember { mutableFloatStateOf(15f) }
 
         // Query String Input
          Box(modifier = Modifier.padding(5.dp)) {
@@ -236,7 +207,7 @@ fun SearchForm() {
                         unfocusedContainerColor = Color.Transparent,
                         focusedContainerColor = Color.Transparent),
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
                         .fillMaxWidth(),
                 )
                 ExposedDropdownMenu(modifier = Modifier.background(Color.White).padding(0.dp),
@@ -275,7 +246,7 @@ fun SearchForm() {
                         unfocusedContainerColor = Color.Transparent,
                         focusedContainerColor = Color.Transparent),
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
                         .fillMaxWidth()
 
                 )
@@ -312,7 +283,7 @@ fun SearchForm() {
                         unfocusedContainerColor = Color.Transparent,
                         focusedContainerColor = Color.Transparent),
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
                         .fillMaxWidth()
 
 
@@ -346,7 +317,7 @@ fun SearchForm() {
                     .border(
                         width = 1.dp,
                         color = Color.Transparent,
-                        shape = RoundedCornerShape(0.dp) // Viền chỉ dưới chân
+                        shape = RoundedCornerShape(0.dp)
                     ), label = { Text("Locale")},
                     singleLine = true,
                     colors = TextFieldDefaults.colors(

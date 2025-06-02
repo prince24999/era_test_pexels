@@ -13,6 +13,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.WindowInsets
 import android.view.WindowInsetsController
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
@@ -24,21 +25,22 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,14 +59,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import coil.compose.rememberAsyncImagePainter
-import com.vp.era_test_pexels.ui.main.SharedTopBar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-
 
 
 class PhotoDetail : ComponentActivity() {
@@ -80,20 +79,20 @@ class PhotoDetail : ComponentActivity() {
         //Log.d("PhotoDetail", "PhotoDetailUrl: $imageUrl")
         setContent {
 
-            FullScreenEffect() // overlap statusbar
+            FullScreenEffect() // overlap status bar
 
             Scaffold(modifier = Modifier.fillMaxSize(),
 
             ) { innerPadding ->
                 Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-                    // 🟢 Hình ảnh (Nằm dưới cùng)
+
                     ZoomableImageScreen(imageUrl.toString())
 
-                    // 🔵 Footer chứa 2 dòng Text, đè lên dưới cùng
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.BottomCenter) // ✅ Căn ở dưới cùng
+                            .align(Alignment.BottomCenter)
                             .background(Color.Transparent)
                             .padding(8.dp)
                     ) {
@@ -116,11 +115,11 @@ class PhotoDetail : ComponentActivity() {
                         }
                     }
 
-                    // 🔴 Header chứa Button, đè lên phía trên cùng
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.TopEnd) // ✅ Căn ở trên cùng
+                            .align(Alignment.TopEnd)
                             .background(Color.Transparent)
                             .padding(8.dp)
                     ) {
@@ -174,7 +173,13 @@ fun DownloadBar(imageUrl: String) {
                 }
 
             }) {
-            Text(text = "Download")
+            //Text(text = "Download")
+            Icon(
+                imageVector = Icons.Filled.ArrowDownward,
+                contentDescription = "Download Icon",
+
+            )
+
         }
 
     }
@@ -183,9 +188,9 @@ fun DownloadBar(imageUrl: String) {
 
 @Composable
 fun ZoomableImageScreen(imageUrl: String) {
-    var scale by remember { mutableStateOf(1f) }
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
     // container size, we use fillMaxSize() then it's just the screen size
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -255,8 +260,15 @@ fun saveImageToGallery(context: Context, imageBitmap: Bitmap, imageName: String)
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
             outputStream.flush()
         }
+
+        
+        Toast.makeText(context, "Image saved to device !", Toast.LENGTH_SHORT).show().apply {  }
+    } ?: run {
+
+        Toast.makeText(context, "Image save failed !", Toast.LENGTH_SHORT).show()
     }
 }
+
 
 
 @RequiresApi(Build.VERSION_CODES.R)

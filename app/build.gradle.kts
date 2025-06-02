@@ -43,6 +43,8 @@ android {
 
 dependencies {
 
+    implementation("androidx.compose.material:material-icons-core:1.7.0")
+    implementation("androidx.compose.material:material-icons-extended:1.7.0")
     implementation ("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.31.1-alpha")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
@@ -70,6 +72,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.media3.exoplayer)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
