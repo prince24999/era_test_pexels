@@ -262,7 +262,7 @@ fun saveImageToGallery(context: Context, imageBitmap: Bitmap, imageName: String)
         }
 
         
-        Toast.makeText(context, "Image saved to device !", Toast.LENGTH_SHORT).show().apply {  }
+        Toast.makeText(context, "Image saved to device !", Toast.LENGTH_SHORT).show()
     } ?: run {
 
         Toast.makeText(context, "Image save failed !", Toast.LENGTH_SHORT).show()
